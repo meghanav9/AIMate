@@ -1,0 +1,123 @@
+nav ul{float: right; height:150px; width:100%;}
+nav ul{overflow:hidden; overflow-y:scroll;}
+@charset "utf-8";
+body {
+
+}
+.multiselect {
+  width: 200px;
+}
+
+.selectBox {
+  position: relative;
+}
+
+.selectBox select {
+  width: 100%;
+  font-weight: bold;
+}
+
+.overSelect {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+
+#checkboxes {
+  display: none;
+  border: 1px #dadada solid;
+  margin: 0;
+}
+#checkboxes label {
+  display: -webkit-block;
+  display: block;
+}
+ul {
+/*	display: none;
+	display: -webkit-none;*/
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+li{
+  display: list-item;
+}
+h1 {
+	background: #2980b9;
+	color: white;
+	margin: 0;
+	padding: 10px 20px;
+	text-transform: uppercase;
+	font-size: 24px;
+	font-weight: normal;
+}
+
+.fa-chevron-down {
+	text-rendering: optimizeLegibility;
+	float: right;
+}
+
+
+li {
+	margin: 0;
+	background: #fff;
+	height: 30px;
+	line-height: 30px;
+	color: #666;
+}
+
+li:nth-child(2n){
+	background: #f7f7f7;
+}
+.fa{
+	padding-top: 10px;
+}
+#trash {
+	float: right;
+	background: #e74c3c;
+	height: 40px;
+
+	text-align: center;
+	color: white;
+	width: 0;
+	display: -webkit-inline-block;
+	display: inline-block;
+	transition: 0.2s linear;
+	opacity: 0;
+}
+
+li:hover #trash {
+	width: 40px;
+	opacity: 1.0;
+	display: -webkit-inline-block;
+	display: inline-block;
+}
+
+#text{
+	display:none;
+	display: -webkit-none;
+	font-size: 14px;
+	color: #2980b9;
+	background-color: #f7f7f7;
+	width: 100%;
+	padding: 4px 4px 4px 26px;
+	box-sizing: border-box;
+	border: 3px solid rgba(0,0,0,0);
+}
+
+#text:focus{
+	background: #fff;
+	border: 3px solid #2980b9;
+/*	outline: none;*/
+	  border: 1px #dadada solid;
+}
+
+#container {
+	width: 200px;
+	margin: 100px auto;
+	background: #f7f7f7;
+	box-shadow: 0 0 3px rgba(0,0,0, 0.1);
+}

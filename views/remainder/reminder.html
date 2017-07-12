@@ -1,0 +1,403 @@
+
+
+<!DOCTYPE html>
+
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+	<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>AI-Mate &mdash; A guide to help patients suffering from Lupus </title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="AI Mate " />
+	<meta name="keywords" content="AI Mate  Web App" />
+
+
+	<!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+	<link rel="shortcut icon" href="favicon.ico">
+
+	<link href='https://fonts.googleapis.com/css?family=Roboto:400,100,300,700,900' rel='stylesheet' type='text/css'>
+	<link href="https://fonts.googleapis.com/css?family=Roboto+Slab:300,400,700" rel="stylesheet">
+	
+	<!-- Animate.css -->
+	<link rel="stylesheet" href="css/animate.css">
+	<!-- Icomoon Icon Fonts-->
+	<link rel="stylesheet" href="css/icomoon.css">
+	<!-- Bootstrap  -->
+	<link rel="stylesheet" href="css/bootstrap.css">
+	<!-- Superfish -->
+	<link rel="stylesheet" href="css/superfish.css">
+	<!-- Flexslider -->
+	<link rel="stylesheet" href="css/flexslider.css">
+
+	<link rel="stylesheet" href="css/style.css">
+
+
+	<!-- Modernizr JS -->
+	<script src="js/modernizr-2.6.2.min.js"></script>
+	<script type="text/javascript" src="assets/js/lib/jquery-2.1.4.min.js"></script>
+	<script type="text/javascript" src="assets/js/lib/jquery-2.1.4.min.js"></script>
+		<script type="text/javascript" src="assets/js/medicines_add.js"></script>
+			<script type="text/javascript" src="assets/js/lib/jquery-2.1.4.min.js"></script>
+			  <script src="https://apis.google.com/js/client.js"></script>
+	<!-- FOR IE9 below -->
+	<!--[if lt IE 9]>
+	<script src="js/respond.min.js"></script>
+	<![endif]-->
+
+	</head>
+	<body>
+ <script>
+
+		var clientId = 'XXXXXXXXXXXXXXXXXXXclientIDXXXXXXXXXXXXXXXXXXXXXXXXXX';
+		var apiKey = 'XXXXXXXXXXXXXXXXXapiKeyXXXXXXXXXXXXXXX';
+		var scopes = 'https://www.googleapis.com/auth/calendar';
+    	 //var min3 = min2 + 10;
+		 var today1;
+		 var enddate;	
+		 var recurringon;
+		 var display;
+		 var SelBranchVal = "";
+		var now = new Date();
+		var today;
+			// today = now.toISOString();
+			//var today2 = (new Date()).toString("yyyy-MM-dd");
+			var dateString = timeSolver.getString(now, "YYYY-MM-DD");
+			var twoHoursLater = new Date(now.getTime() + (2*1000*60*60));
+			twoHoursLater = twoHoursLater.toISOString();
+		        	//past dates disabled
+	    function displaycalender(){
+	    	today3 = now.getFullYear()+'-'+'0'+(parseInt(now.getMonth())+1)+'-'+'0'+now.getDay();
+		    document.getElementsByName("date")[0].setAttribute('min', today3);
+		}
+		//injection test
+		function chText()
+		{
+	    	var str=document.getElementById("text");
+	    	var regex=/[^a-z 0-9 -\s]/gi;
+	    	str.value=str.value.replace(regex ,"");
+		}
+		
+		function handleClientLoad() {
+			
+			gapi.client.setApiKey(apiKey);
+			window.setTimeout(checkAuth,1);
+		}
+
+		function checkAuth() {
+			gapi.auth.authorize({client_id: clientId, scope: scopes, immediate: true},handleAuthResult);
+		}
+
+		function handleAuthResult(authResult) {
+			//document.getElementById('time-check').innerHTML = dateString;
+			var authorizeButton = document.getElementById('authorize-button');
+			var resultPanel		= document.getElementById('result-panel');
+			var resultTitle		= document.getElementById('result-title');
+			if(recurringon == 'none'){
+			var resource = {
+				"summary": "Take medicine "+display,
+				"start": {
+					'dateTime': today1,
+					'timeZone': 'America/New_York'
+				},
+				"end": {
+					'dateTime': enddate,
+					'timeZone': 'America/New_York'
+				}
+				
+			};
+			}else{
+				var resource = {
+					"summary": "Time to take medicine :  "+display,
+					"start": {
+						'dateTime': today1,
+						'timeZone': 'America/New_York'
+					},
+					"end": {
+						'dateTime': enddate,
+						'timeZone': 'America/New_York'
+					},
+					"recurrence": [
+						'RRULE:FREQ='+recurringon,
+				],
+				'reminders': {
+						'useDefault': false,
+						'overrides': [
+								{'method': 'popup', 'minutes': 1}
+						]
+				}
+				
+			};
+			}
+			
+			if (authResult && !authResult.error) {						
+					authorizeButton.style.visibility = 'hidden';			// if authorized, hide button
+					resultPanel.className = resultPanel.className.replace( /(?:^|\s)panel-danger(?!\S)/g , '' )	// remove red class
+					resultPanel.className += 'panel-success';				// add green class
+					//resultTitle.innerHTML = 'Application Authorized'		// display 'authorized' text
+					makeApiCall(resource);											// call the api if authorization passed
+				} else {													// otherwise, show button
+					authorizeButton.style.visibility = 'visible';
+					resultPanel.className += 'panel-danger';				// make panel red
+					authorizeButton.onclick = handleAuthClick;				// setup function to handle button click
+				}
+		}
+
+		function handleAuthClick(event) {
+			gapi.auth.authorize({client_id: clientId, scope: scopes, immediate: false},handleAuthResult);
+			return false;
+		}
+		
+		
+		function makeApiCall(resource) {
+			gapi.client.load('calendar', 'v3', function() {
+			var request = gapi.client.calendar.events.insert({'calendarId': 'primary', "resource": resource});
+          	request.execute(function(resp) {
+				if(resp.status=='confirmed') {
+					document.getElementById('myForm').style.visibility = "hidden";
+					document.getElementById('event-response').innerHTML = "Reminder created. View <a href='" + resp.htmlLink + "'>Google Calender</a>.<br> <a href='reminder.html'>+ Add a New Reminder</a>";
+				} 
+				else {
+					document.getElementById('event-response').innerHTML = "There was a problem. Reload page and try again.";
+				}
+			});
+		});
+	}
+	
+	var set=0;  
+	ver=parseInt(navigator.appVersion);
+	
+	function setv()
+	{
+	var min = 0;
+	recurringon = document.querySelector('input[name = "recurringon"]:checked').value;
+	var mydate = document.getElementById("myDate").value;
+	//var checkboxes = document.getElementsByName("medicinename").value;
+	var e = document.getElementById("medicinename");
+	var strUser = e.options[e.selectedIndex].value;
+	//alert(strUser);
+	display = strUser;
+	/*display = "";
+	    			for( var i=0; i<checkboxes.length; i++){
+	    	    		if( checkboxes[i].checked ){
+	        	    		display += " " + checkboxes[i].value + ",";
+		    		}*/
+		    		//timetimealert(display);
+	//for dropdown	    		
+	// var temp = document.getElementById("recurringon");
+	// recurringon = temp.options[temp.selectedIndex].value;
+	var hr2 = document.getElementById('hour2').value;
+	var min2 = document.getElementById('min2').value;
+	var hr3;
+	var min3;
+	if(hr2<10)
+	hr2='0'+hr2;
+	if(min2<10)min2='0'+min2;
+	if(min2 >= 50)
+	{
+	  if(parseInt(hr2) == 23)
+	  {
+		hr3 = 00; min3 = 10;
+	  }else{
+	  hr3 = parseInt(hr2) + 1;
+	  min3 = 10;
+	  }
+	}
+	hr3 = hr2;
+	min3 = parseInt(min2)+ 10;
+	today1 = mydate+'T'+hr2+':'+min2+':00';
+	enddate =mydate+'T'+hr3+':'+min3+':00';
+	handleClientLoad();
+
+	//validation of input entered
+	
+	// var medicineinput = documents.getElementById("checkboxes").value;
+	// var d = document.getElementById("medicineErr");
+ //    if (medicineinput == "") {
+ //        //alert("Date must be filled out");
+ //        d.innerHTML = "Date Must Be Filled Out";
+ //        return false;
+ //    } else{
+ //    	d.style.display = "none";
+ //    }
+    var dateinput = document.getElementById("myDate").value;
+    var c = document.getElementById("dateErr");
+    if (dateinput == "") {
+        //alert("Date must be filled out");
+        c.innerHTML = "Date Must Be Filled Out";
+        return false;
+    } else{
+    	c.style.display = "none";
+    }
+
+}
+
+
+
+function prtsel(x)
+{
+for(var i=0;i<x;i++)document.write("<option value="+i+">"+i+"</option>");
+}
+    </script>
+<!--	<script src="https://code.jquery.com/jquery-1.12.4.js"></script> 
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> -->
+  <script src="https://apis.google.com/js/client.js"></script> 
+			<div id="fh5co-wrapper">
+		<div id="fh5co-page">
+		<div id="fh5co-header">
+		<header id="fh5co-header-section">
+				<div class="container">
+					<div class="nav-header">
+						<a href="#" class="js-fh5co-nav-toggle fh5co-nav-toggle"><i></i></a>
+						<h1 id="fh5co-logo" ><a href="index.html" style = "font-size:45px;"><img src="./images/a.png"  style="width:40px;height:40px;margin-bottom: 10px;"><img src="./images/i.png"  style="width:10px;height:40px;margin-bottom: 10px;">-Mate</a></h1>
+						<!-- START #fh5co-menu-wrap -->
+						<nav id="fh5co-menu-wrap" role="navigation">
+							<ul class="sf-menu" id="fh5co-primary-menu">
+								<li>
+									<a  href="index.html">Home</a>
+								</li>
+								<li><a class="active" href="reminder.html">Reminder</a></li>
+								<li><a href="analysis.html">Protein Analysis</a></li>
+								<li><a href="selfie.html">Selfie</a></li>
+								<li><a href="handdrift.php">Hand-Drift</a></li>
+							</ul>
+						</nav>
+					</div>
+				</div>
+			</header>		
+		</div>
+		<!-- end:fh5co-header -->
+		
+		<br>
+		<br>
+		<div id="fh5co-team-section">
+			<div class="container">
+				<div class="row">
+				<div id="result-panel">
+								<div >
+								<h3 class="panel-title" id="result-title"></h3>
+								</div><!-- .panel-heading -->
+								<div id="event-response"></div>
+					<div class="col-md-6 col-md-offset-3 text-center fh5co-heading" id = "myForm">
+						<div class="form-group">	
+							<div>
+							<br>
+								<h3 class="text-left">Pick a day
+	      							<span class="glyphicon glyphicon-calendar input-place"></span>
+	      						</h3>
+	      						<label for="date" class="sr-only">Remainder on</label>
+								<input type="date" name ="date" class="form-control" id="myDate" onclick="displaycalender()" required>
+								<span id="dateErr" style = "color:red;"></span>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<h3 class="text-left">Pick a time</h3>
+							<div class = "form-inline">
+								<select id=hour2 class="dropdown pull-left">
+									<script type='text/javascript'>prtsel(24);</script>
+								</select>
+								<select id=min2 class="dropdown pull-left" >
+										<script type='text/javascript'>prtsel(61);</script>
+								</select>
+								</div>
+								<span id="timeErr" style = "color:red;"></span>
+								<br>
+						</div>
+
+						<div class="form-group">
+							<h3 class="text-left">Enter interval</h3>	
+							<div id= "radiobutton">
+								<input type="radio" name = "recurringon" id="recurringon" value="none" checked>Never 
+								<input type="radio" name = "recurringon" id="recurringon" value="DAILY">Daily 
+								<input type="radio" name = "recurringon" id="recurringon" value="WEEKLY">Weekly 
+								<input type="radio" name = "recurringon" id="recurringon" value="MONTHLY">Monthly 
+							</div>
+						</div>
+
+						<div class="form-group">
+									<select id="medicinename" name="medicinename" class="form-control">
+										<option value ="">Select medicine for reminder</option>
+										<option value="Prednisone">Prednisone</option>
+										<option value="Mycophenolate">Mycophenolate</option>
+										<option value="Mycophenolic acid">Mycophenolic acid</option>
+										<option value="Azathioprine">Azathioprine</option>
+										<option value="Tacrolimus">Tacrolimus</option>
+										<option value="Methotrexate">Methotrexate</option>
+										<option value="Hydroxychloroquine">Hydroxychloroquine</option>
+										<option value="Chloroquine">Chloroquine</option>
+										<option value="Lisinopril">Lisinopril</option>
+										<option value="Losartan">Losartan</option>
+										<option value="Valsartan">Valsartan</option>
+										<option value="Simvastatin">Simvastatin</option>
+										<option value="Pravastatin">Pravastatin</option>
+										<option value="Rosuvastatin">Rosuvastatin</option>
+										<option value="Aspirin">Aspirin</option>
+										<option value="Calcium-Vitamin D">Calcium-Vitamin D</option>
+									</select>
+						</div>
+
+						<div class="form-group">	
+							<input type="button"  class="btn btn-warning" value="Set Reminder" onclick="setv()"/>
+							 <button id="authorize-button" style="visibility: hidden" class="btn btn-primary">Authorize</button>
+							</div>
+						</div>
+		
+	<!-- <div id="event-response"></div> -->
+				<script type="text/javascript" src="assets/js/medicines_add.js"></script>	
+					</div>
+			</div>
+		</div>
+	
+			
+		<footer>
+			<div id="footer">
+				<div class="container">
+					<div class="row copy-center">
+						<div class="col-md-6 col-md-offset-3 text-center">
+							<h1  style="color: white">Contact:</h1>
+							<h3 class="section-title">Ramon GB Bonegio, MD</h3>
+							<ul class="contact-info">
+								<li><i class="icon-map2"></i>650 Albany St Evans Biomed Research Ctr, Boston MA 02118</li>
+								<li><i class="icon-phone2"></i>(617) 638-7331</li>
+								<li><i class="icon-envelope2"></i><a href="#">bonegio@bu.edu</a></li>
+							</ul>
+						</div>
+					</div>
+					<div class="row copy-right">
+						<div class="col-md-6 col-md-offset-3 text-center">
+							<h3 class="section-title" style="text-align: center;">AI-Mate - A guide to help patients</h3>
+						</div>
+					</div>
+				</div>
+			</div>
+		</footer>
+	
+
+	</div>
+	<!-- END fh5co-page -->
+
+	</div>
+	<!-- END fh5co-wrapper -->
+
+	<!-- jQuery -->
+
+
+	<script src="js/jquery.min.js"></script>
+	<!-- jQuery Easing -->
+	<script src="js/jquery.easing.1.3.js"></script>
+	<!-- Bootstrap -->
+	<script src="js/bootstrap.min.js"></script>
+	<!-- Waypoints -->
+	<script src="js/jquery.waypoints.min.js"></script>
+	<!-- Superfish -->
+	<script src="js/hoverIntent.js"></script>
+	<script src="js/superfish.js"></script>
+	<!-- Flexslider -->
+	<script src="js/jquery.flexslider-min.js"></script>
+
+	<!-- Main JS (Do not remove) -->
+	<script src="js/main.js"></script>
+
+	</body>
+</html>
+
